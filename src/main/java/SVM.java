@@ -1,4 +1,6 @@
 
+import java.io.Serializable;
+import java.util.Arrays;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
@@ -20,21 +22,20 @@ import scala.Tuple2;
  *
  * @author Carlos Alberto Ramirez Otero
  */
-public class SVM {
+public class SVM implements Serializable{
 
-    public SVM() {
-    }
+    public SVM() {}
 
-    public static void main(String[] args) {
+    public void execImageAnalysis() {
 
         System.setProperty("hadoop.home.dir", "B:\\Documents\\NetBeansProjects\\ImageMLSpark");
-// Create Java spark context
-        SparkConf conf = new SparkConf().setAppName("SVM vs Navie Bayes").setMaster("local[2]").set("spark.executor.memory","1g");
+        // Create Java spark context
+        SparkConf conf = new SparkConf().setAppName("SVM vs Navie Bayes").setMaster("local[2]").set("spark.executor.memory","2g");
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-//RDD training = MLUtils.loadLabeledData(sc, args[0]);
-//RDD test = MLUtils.loadLabeledData(sc, args[1]); // test set
-        JavaRDD training = sc.textFile("B:\\Desktop\\training").cache().map(new Function<String, LabeledPoint>() {
+        //RDD training = MLUtils.loadLabeledData(sc, args[0]);
+        //RDD test = MLUtils.loadLabeledData(sc, args[1]); // test set
+        JavaRDD training = sc.textFile("training").cache().map(new Function<String, LabeledPoint>() {
             @Override
             public LabeledPoint call(String v1) throws Exception {
                 //System.out.println("que datos son: "+v1);
@@ -53,7 +54,7 @@ public class SVM {
         });
         
         System.out.println(training.count());
-        JavaRDD test = sc.textFile("B:\\Desktop\\test").cache().map(new Function<String, LabeledPoint>() {
+        JavaRDD test = sc.textFile("test").cache().map(new Function<String, LabeledPoint>() {
 
             @Override
             public LabeledPoint call(String v1) throws Exception {
@@ -92,7 +93,7 @@ public class SVM {
                 }).count() / (double) test.count();
         System.out.println("navie bayes accuracy : " + accuracy);
 
-        final SVMModel svmModel = SVMWithSGD.train(training.rdd(), Integer.parseInt("100"));
+        final SVMModel svmModel = SVMWithSGD.train(training.rdd(), 100);
 
         JavaPairRDD<Double, Double> predictionAndLabelSVM = test.mapToPair(new PairFunction<LabeledPoint, Double, Double>() {
             @Override
