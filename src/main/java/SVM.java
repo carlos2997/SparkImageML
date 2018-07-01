@@ -35,6 +35,7 @@ public class SVM implements Serializable{
 
         //RDD training = MLUtils.loadLabeledData(sc, args[0]);
         //RDD test = MLUtils.loadLabeledData(sc, args[1]); // test set
+        
         JavaRDD training = sc.textFile("training").cache().map(new Function<String, LabeledPoint>() {
             @Override
             public LabeledPoint call(String v1) throws Exception {
@@ -54,6 +55,7 @@ public class SVM implements Serializable{
         });
         
         System.out.println(training.count());
+        
         JavaRDD test = sc.textFile("test").cache().map(new Function<String, LabeledPoint>() {
 
             @Override
@@ -116,5 +118,4 @@ public class SVM implements Serializable{
         System.out.println("svm accuracy : " + accuracySVM);
 
     }
-
 }
